@@ -1,0 +1,47 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.{jsx,js}'],
+  theme: {
+    extend: {
+      colors: {
+        void:      '#08090C',
+        abyss:     '#0F1117',
+        surface:   '#171B26',
+        surface2:  '#1E2335',
+        surface3:  '#262C42',
+        border:    '#252A3D',
+        border2:   '#3A4160',
+        border3:   '#4A5280',
+        indigo:    '#6366F1',
+        'indigo-light': '#818CF8',
+        'indigo-dim':   '#3730A3',
+        'indigo-deep':  '#1E1B4B',
+        phosphor:  '#AAFF4D',
+        'phosphor-dim': '#86CC3A',
+        amber:     '#F97316',
+        text1:     '#F4F6FF',
+        text2:     '#8B92A5',
+        text3:     '#4A5168',
+        text4:     '#2C3248',
+        danger:    '#F87171',
+        success:   '#4ADE80',
+        info:      '#60A5FA',
+        warning:   '#FBBF24',
+      },
+      fontFamily: {
+        display: ['Syne', 'sans-serif'],
+        sans:    ['Plus Jakarta Sans', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      borderRadius: {
+        sm:    '6px',
+        DEFAULT: '8px',
+        md:    '10px',
+        lg:    '14px',
+        xl:    '18px',
+        '2xl': '24px',
+      },
+    },
+  },
+  plugins: [],
+};

@@ -1,0 +1,70 @@
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Logo } from '../components/ui/Logo.jsx';
+import { Button } from '../components/ui/Button.jsx';
+import { Input } from '../components/ui/Input.jsx';
+import { loginSchema } from '../utils/validators.js';
+import { useAuthStore } from '../store/authStore.js';
+
+export default function Login() {
+  const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({ resolver: zodResolver(loginSchema) });
+
+  const onSubmit = async (data) => {
+    try {
+      await login(data.email, data.password);
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(err?.response?.data?.error ?? 'Login failed. Check your credentials.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-abyss flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="flex justify-center mb-8">
+          <Logo size={48} showWordmark />
+        </div>
+
+        <div className="bg-surface2 border border-border rounded-2xl p-7">
+          <h1 className="font-display text-xl font-bold text-text1 mb-6">Welcome back</h1>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              error={errors.email?.message}
+              {...register('email')}
+            />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              error={errors.password?.message}
+              {...register('password')}
+            />
+            <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
+              Sign in
+            </Button>
+          </form>
+
+          <p className="text-center text-text3 text-sm mt-5">
+            No account?{' '}
+            <Link to="/register" className="text-indigo-light hover:underline">
+              Create one
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

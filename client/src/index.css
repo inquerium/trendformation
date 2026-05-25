@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === TRENDFORMATION DESIGN TOKENS === */
+:root {
+  /* Backgrounds */
+  --tf-void:            #08090C;
+  --tf-abyss:           #0F1117;
+  --tf-surface:         #171B26;
+  --tf-surface-2:       #1E2335;
+  --tf-surface-3:       #262C42;
+
+  /* Borders */
+  --tf-border:          #252A3D;
+  --tf-border-2:        #3A4160;
+  --tf-border-3:        #4A5280;
+
+  /* Brand accents */
+  --tf-indigo:          #6366F1;
+  --tf-indigo-light:    #818CF8;
+  --tf-indigo-dim:      #3730A3;
+  --tf-indigo-deep:     #1E1B4B;
+  --tf-indigo-faint:    rgba(99, 102, 241, 0.12);
+
+  --tf-phosphor:        #AAFF4D;
+  --tf-phosphor-dim:    #86CC3A;
+  --tf-phosphor-faint:  rgba(170, 255, 77, 0.10);
+
+  --tf-amber:           #F97316;
+  --tf-amber-faint:     rgba(249, 115, 22, 0.12);
+
+  /* Text */
+  --tf-text-1:          #F4F6FF;
+  --tf-text-2:          #8B92A5;
+  --tf-text-3:          #4A5168;
+  --tf-text-4:          #2C3248;
+
+  /* Semantic */
+  --tf-success:         #4ADE80;
+  --tf-danger:          #F87171;
+  --tf-info:            #60A5FA;
+  --tf-warning:         #FBBF24;
+
+  /* Chart series */
+  --chart-weight:       #6366F1;
+  --chart-strength:     #AAFF4D;
+  --chart-calories-in:  #F97316;
+  --chart-calories-out: #F87171;
+  --chart-sleep:        #60A5FA;
+  --chart-caffeine:     #E879F9;
+  --chart-protein:      #34D399;
+  --chart-carbs:        #FBBF24;
+  --chart-fat:          #FB923C;
+  --chart-net-cal:      #A5B4FC;
+
+  /* Fonts */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+
+  /* Motion */
+  --ease-micro:   150ms ease-out;
+  --ease-panel:   320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-modal:   280ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-chart:   700ms ease-in-out;
+  --ease-page:    400ms ease-in-out;
+  --ease-loading: 1.5s ease-in-out infinite;
+}
+
+/* Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--tf-abyss);
+  color: var(--tf-text-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #818CF8 0%, #AAFF4D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Landing hero bg */
+.hero-bg {
+  background-color: #08090C;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.hero-glow {
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 30%,
+    rgba(99, 102, 241, 0.18) 0%,
+    transparent 70%
+  );
+}
+
+.cta-banner {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    #1E1B4B;
+}
+
+/* Skeleton pulse animation */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.skeleton {
+  animation: skeleton-pulse var(--ease-loading);
+  background-color: var(--tf-surface-3);
+  border-radius: 6px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--tf-abyss);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tf-border-2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tf-border-3);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
