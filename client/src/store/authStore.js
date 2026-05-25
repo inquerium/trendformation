@@ -13,35 +13,35 @@ export const useAuthStore = create(
       user: null,
       accessToken: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true, // true until initialize() resolves
+
+      // Called once on app mount — recovers an existing Supabase session.
+      initialize: async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          const profile = await fetchProfile(session.access_token);
+          set({
+            user: buildUser(session.user, profile),
+            accessToken: session.access_token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } else {
+          set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+        }
+      },
 
       login: async (email, password) => {
         set({ isLoading: true });
         try {
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
-
           const profile = await fetchProfile(data.session.access_token);
-
           set({
-            user: {
-              id: data.user.id,
-              email: data.user.email,
-              name: profile?.name ?? null,
-              weightUnit: profile?.weight_unit ?? 'lbs',
-            },
+            user: buildUser(data.user, profile),
             accessToken: data.session.access_token,
             isAuthenticated: true,
             isLoading: false,
-          });
-
-          supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'TOKEN_REFRESHED' && session) {
-              set({ accessToken: session.access_token });
-            }
-            if (event === 'SIGNED_OUT') {
-              set({ user: null, accessToken: null, isAuthenticated: false });
-            }
           });
         } catch (err) {
           set({ isLoading: false });
@@ -69,6 +69,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'tf-auth',
+      // isLoading is intentionally excluded — always recomputed on mount.
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
@@ -78,14 +79,33 @@ export const useAuthStore = create(
   ),
 );
 
+// Module-level listener — fires on token refresh and sign-out regardless of
+// how the session changed (another tab, Supabase background refresh, etc.).
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED' && session) {
+    useAuthStore.setState({ accessToken: session.access_token });
+  }
+  if (event === 'SIGNED_OUT') {
+    useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false });
+  }
+});
+
+function buildUser(authUser, profile) {
+  return {
+    id: authUser.id,
+    email: authUser.email,
+    name: profile?.name ?? null,
+    weightUnit: profile?.weight_unit ?? 'lbs',
+  };
+}
+
 async function fetchProfile(accessToken) {
-  const apiUrl = import.meta.env.VITE_API_URL || '/api';
   try {
-    const res = await fetch(`${apiUrl}/auth/me`, {
+    const res = await fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const json = await res.json();
-    return json.data?.user;
+    return json.data?.user ?? null;
   } catch (_) {
     return null;
   }

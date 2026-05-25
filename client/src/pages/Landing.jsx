@@ -65,7 +65,7 @@ export default function Landing() {
         <div className="hero-glow absolute inset-0 pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 py-24 md:py-36 text-center">
           <motion.h1
-            className="font-display text-6xl md:text-8xl font-extrabold tracking-tight leading-none mb-6"
+            className="font-display text-6xl md:text-8xl font-extrabold tracking-tight leading-none mb-6 flex items-center justify-center flex-wrap"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
@@ -100,7 +100,7 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="max-w-5xl mx-auto px-6 md:px-12 py-24">
+      <section className="max-w-5xl mx-auto px-6 md:px-12 pt-16 pb-24">
         <motion.h2
           className="font-display text-3xl font-bold text-center text-text1 mb-12"
           variants={fadeUp}
