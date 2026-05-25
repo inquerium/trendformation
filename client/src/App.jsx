@@ -26,19 +26,15 @@ const PageFallback = () => (
 );
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuthStore((s) => ({
-    isAuthenticated: s.isAuthenticated,
-    isLoading: s.isLoading,
-  }));
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   if (isLoading) return <PageFallback />;
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuthStore((s) => ({
-    isAuthenticated: s.isAuthenticated,
-    isLoading: s.isLoading,
-  }));
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   if (isLoading) return <PageFallback />;
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
 }

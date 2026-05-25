@@ -17,6 +17,7 @@ import calorieRoutes from './routes/calories.routes.js';
 import caffeineRoutes from './routes/caffeine.routes.js';
 import voiceRoutes from './routes/voice.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+import importRoutes from './routes/import.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -40,13 +41,13 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/weight-logs', weightRoutes);
 app.use('/api/workout-sessions', workoutRoutes);
-app.use('/api/workout-exercises', workoutRoutes);
 app.use('/api/nutrition-logs', nutritionRoutes);
 app.use('/api/sleep-logs', sleepRoutes);
 app.use('/api/calorie-burn-logs', calorieRoutes);
 app.use('/api/caffeine-logs', caffeineRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/import', importRoutes);
 
 app.use(errorHandler);
 

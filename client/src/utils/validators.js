@@ -20,7 +20,6 @@ export const weightSchema = z.object({
 
 export const nutritionSchema = z.object({
   logged_at: z.string(),
-  meal_label: z.enum(['breakfast', 'lunch', 'dinner', 'snack', '']).optional(),
   calories: z.coerce.number().min(0).optional().nullable(),
   protein_g: z.coerce.number().min(0).optional().nullable(),
   carbs_g: z.coerce.number().min(0).optional().nullable(),
@@ -51,4 +50,23 @@ export const calorieBurnSchema = z.object({
   passive_calories: z.coerce.number().min(0).optional().nullable(),
   activity_type: z.string().optional(),
   notes: z.string().optional(),
+});
+
+const setSchema = z.object({
+  reps: z.coerce.number().int().min(0).optional().nullable(),
+  weight: z.coerce.number().min(0).optional().nullable(),
+  weight_unit: z.enum(['lbs', 'kg']).default('lbs'),
+});
+
+const exerciseSchema = z.object({
+  exercise: z.string().min(1, 'Exercise name required'),
+  sets: z.array(setSchema).min(1),
+});
+
+export const workoutSchema = z.object({
+  name: z.string().optional(),
+  logged_at: z.string(),
+  duration_min: z.coerce.number().int().min(0).optional().nullable(),
+  notes: z.string().optional(),
+  exercises: z.array(exerciseSchema).default([]),
 });

@@ -1,6 +1,6 @@
 export function Logo({ size = 40, showWordmark = true }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <svg viewBox="0 0 52 52" width={size} height={size} style={{ flexShrink: 0 }}>
         <rect width="52" height="52" rx="11" fill="#1E1B4B" />
         <circle cx="13" cy="13" r="1" fill="#4338CA" opacity="0.55" />
@@ -22,24 +22,21 @@ export function Logo({ size = 40, showWordmark = true }) {
       </svg>
 
       {showWordmark && (
-        <div style={{ lineHeight: 1, fontFamily: "'Syne', sans-serif" }}>
-          <span
-            style={{
-              fontSize: 22,
-              fontWeight: 800,
-              letterSpacing: '0.03em',
-              background: 'linear-gradient(135deg, #818CF8 0%, #AAFF4D 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            TREND
-          </span>
-          <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '0.03em', color: '#F4F6FF' }}>
-            FORMATION
-          </span>
-        </div>
+        <span
+          style={{
+            fontSize: 17,
+            fontWeight: 800,
+            fontFamily: "'Syne', sans-serif",
+            letterSpacing: '0.1em',
+            background: 'linear-gradient(135deg, #818CF8 0%, #AAFF4D 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            lineHeight: 1,
+          }}
+        >
+          T4M
+        </span>
       )}
     </div>
   );

@@ -66,7 +66,19 @@ export async function refreshSession(refreshToken) {
 
 export async function getProfileById(id) {
   const { data } = await supabase.from('users').select('name, weight_unit').eq('id', id).maybeSingle();
-  return data;
+  if (data) return data;
+
+  // Profile row missing — create it as fallback if the DB trigger didn't run
+  const { data: authUser } = await supabase.auth.admin.getUserById(id);
+  const name = authUser?.user?.user_metadata?.name ?? null;
+
+  const { data: newProfile } = await supabase
+    .from('users')
+    .insert({ id, name })
+    .select('name, weight_unit')
+    .single();
+
+  return newProfile;
 }
 
 export async function updateProfile(id, fields) {

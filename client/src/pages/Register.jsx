@@ -20,12 +20,18 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      const { error } = await supabaseClient.auth.signUp({
+      const { data: signUpData, error } = await supabaseClient.auth.signUp({
         email: data.email,
         password: data.password,
         options: { data: { name: data.name } },
       });
       if (error) throw error;
+
+      if (!signUpData.session) {
+        toast.success('Account created! Check your email to confirm, then sign in.');
+        navigate('/login');
+        return;
+      }
 
       await login(data.email, data.password);
       navigate('/dashboard');

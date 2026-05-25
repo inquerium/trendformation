@@ -2,8 +2,13 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar.jsx';
 import { TopBar } from './TopBar.jsx';
 import { MobileNav } from './MobileNav.jsx';
+import { VoiceModal } from '../ui/VoiceModal.jsx';
+import { useUiStore } from '../../store/uiStore.js';
 
 export default function AppLayout() {
+  const voiceModalOpen = useUiStore((s) => s.voiceModalOpen);
+  const closeVoiceModal = useUiStore((s) => s.closeVoiceModal);
+
   return (
     <div className="flex h-screen bg-abyss overflow-hidden">
       <Sidebar />
@@ -14,6 +19,7 @@ export default function AppLayout() {
         </main>
       </div>
       <MobileNav />
+      <VoiceModal isOpen={voiceModalOpen} onClose={closeVoiceModal} />
     </div>
   );
 }
