@@ -1,10 +1,10 @@
 import {
   registerUser,
   loginUser,
-  getUserById,
-  updateUser,
+  refreshSession,
+  getProfileById,
+  updateProfile,
 } from '../services/auth.service.js';
-import { verifyRefresh, signAccess } from '../config/jwt.js';
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -44,9 +44,10 @@ export async function logout(_req, res) {
 export async function refresh(req, res, next) {
   try {
     const token = req.cookies?.refreshToken;
-    if (!token) return res.status(401).json({ success: false, error: 'No refresh token', code: 'NO_REFRESH_TOKEN' });
-    const payload = verifyRefresh(token);
-    const accessToken = signAccess({ sub: payload.sub, email: payload.email });
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No refresh token', code: 'NO_REFRESH_TOKEN' });
+    }
+    const accessToken = await refreshSession(token);
     res.json({ success: true, data: { accessToken } });
   } catch (err) {
     next(err);
@@ -55,8 +56,18 @@ export async function refresh(req, res, next) {
 
 export async function getMe(req, res, next) {
   try {
-    const user = await getUserById(req.user.id);
-    res.json({ success: true, data: { user } });
+    const profile = await getProfileById(req.user.id);
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: req.user.id,
+          email: req.user.email,
+          name: profile?.name ?? null,
+          weightUnit: profile?.weight_unit ?? 'lbs',
+        },
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -64,8 +75,18 @@ export async function getMe(req, res, next) {
 
 export async function patchMe(req, res, next) {
   try {
-    const user = await updateUser(req.user.id, req.body);
-    res.json({ success: true, data: { user } });
+    const profile = await updateProfile(req.user.id, req.body);
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: req.user.id,
+          email: req.user.email,
+          name: profile.name,
+          weightUnit: profile.weight_unit,
+        },
+      },
+    });
   } catch (err) {
     next(err);
   }

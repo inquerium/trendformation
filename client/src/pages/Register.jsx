@@ -6,8 +6,7 @@ import { Logo } from '../components/ui/Logo.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
 import { registerSchema } from '../utils/validators.js';
-import { useAuthStore } from '../store/authStore.js';
-import { registerApi } from '../api/auth.api.js';
+import { supabaseClient, useAuthStore } from '../store/authStore.js';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,11 +20,17 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      await registerApi(data.email, data.password, data.name);
+      const { error } = await supabaseClient.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: { data: { name: data.name } },
+      });
+      if (error) throw error;
+
       await login(data.email, data.password);
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err?.response?.data?.error ?? 'Registration failed. Please try again.');
+      toast.error(err?.message ?? 'Registration failed. Please try again.');
     }
   };
 

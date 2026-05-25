@@ -1,85 +1,90 @@
-import bcrypt from 'bcryptjs';
 import { supabase } from '../config/supabase.js';
-import { signAccess, signRefresh } from '../config/jwt.js';
-
-function makeTokens(user) {
-  const payload = { sub: user.id, email: user.email };
-  return {
-    accessToken: signAccess(payload),
-    refreshToken: signRefresh(payload),
-  };
-}
 
 export async function registerUser(email, password, name) {
-  const { data: existing } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle();
-  if (existing) {
-    const err = new Error('Email already registered');
-    err.status = 409;
-    err.code = 'EMAIL_TAKEN';
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+  if (error) {
+    const err = new Error(error.message);
+    err.status = error.status ?? 400;
+    err.code = error.code ?? 'REGISTER_ERROR';
     throw err;
   }
 
-  const password_hash = await bcrypt.hash(password, 12);
-  const { data: user, error } = await supabase
-    .from('users')
-    .insert({ email, password_hash, name })
-    .select('id, email, name, weight_unit, created_at')
-    .single();
+  const userId = data.user.id;
 
-  if (error) throw error;
-  return { user, ...makeTokens(user) };
+  await supabase.from('users').insert({ id: userId, name });
+
+  const { data: session, error: signInErr } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (signInErr) throw signInErr;
+
+  return {
+    user: { id: userId, email, name, weightUnit: 'lbs' },
+    accessToken: session.session.access_token,
+    refreshToken: session.session.refresh_token,
+  };
 }
 
 export async function loginUser(email, password) {
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('id, email, name, weight_unit, password_hash')
-    .eq('email', email)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  const valid = user && (await bcrypt.compare(password, user.password_hash));
-  if (!valid) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
     const err = new Error('Invalid email or password');
     err.status = 401;
     err.code = 'INVALID_CREDENTIALS';
     throw err;
   }
 
-  const { password_hash: _ph, ...safeUser } = user;
-  return { user: safeUser, ...makeTokens(user) };
+  const profile = await getProfileById(data.user.id);
+
+  return {
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      name: profile?.name ?? null,
+      weightUnit: profile?.weight_unit ?? 'lbs',
+    },
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+  };
 }
 
-export async function getUserById(id) {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, email, name, weight_unit')
-    .eq('id', id)
-    .single();
-  if (error) throw error;
+export async function refreshSession(refreshToken) {
+  const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+  if (error) {
+    const err = new Error('Session expired');
+    err.status = 401;
+    err.code = 'REFRESH_FAILED';
+    throw err;
+  }
+  return data.session.access_token;
+}
+
+export async function getProfileById(id) {
+  const { data } = await supabase.from('users').select('name, weight_unit').eq('id', id).maybeSingle();
   return data;
 }
 
-export async function updateUser(id, fields) {
+export async function updateProfile(id, fields) {
   const allowed = {};
   if (fields.name !== undefined) allowed.name = fields.name;
   if (fields.weightUnit !== undefined) allowed.weight_unit = fields.weightUnit;
-  if (fields.password) {
-    allowed.password_hash = await bcrypt.hash(fields.password, 12);
-  }
   allowed.updated_at = new Date().toISOString();
 
   const { data, error } = await supabase
     .from('users')
-    .update(allowed)
-    .eq('id', id)
-    .select('id, email, name, weight_unit')
+    .upsert({ id, ...allowed })
+    .select('name, weight_unit')
     .single();
   if (error) throw error;
+
+  if (fields.password) {
+    await supabase.auth.admin.updateUserById(id, { password: fields.password });
+  }
+
   return data;
 }
