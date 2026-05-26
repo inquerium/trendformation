@@ -62,6 +62,11 @@ if (existsSync(clientDist)) {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
+  logger.info(`SUPABASE_URL set: ${!!process.env.SUPABASE_URL}`);
+  logger.info(`SERVICE_ROLE_KEY set: ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
+});
 
 export default app;

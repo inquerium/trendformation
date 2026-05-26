@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import 'dotenv/config';
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
+  console.error('[FATAL] Missing env vars: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
+  process.exit(1);
 }
 
 export const supabase = createClient(
