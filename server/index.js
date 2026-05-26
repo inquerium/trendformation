@@ -57,7 +57,7 @@ app.use('/api/import', importRoutes);
 const clientDist = join(__dirname, '../client/dist');
 if (existsSync(clientDist)) {
   app.use(express.static(clientDist));
-  app.get('*', (_req, res) => res.sendFile(join(clientDist, 'index.html')));
+  app.get(/.*/, (_req, res) => res.sendFile(join(clientDist, 'index.html')));
 }
 
 app.use(errorHandler);
