@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 import { globalLimiter } from './middleware/rateLimit.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { logger } from './config/logger.js';
@@ -19,17 +22,18 @@ import voiceRoutes from './routes/voice.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 import importRoutes from './routes/import.routes.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 const PORT = process.env.PORT || 3001;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const isDev = process.env.NODE_ENV !== 'production';
 
-app.use(helmet());
-app.use(
-  cors({
-    origin: CLIENT_URL,
-    credentials: true,
-  }),
-);
+app.use(helmet({ contentSecurityPolicy: false }));
+
+if (isDev) {
+  app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+}
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,6 +52,13 @@ app.use('/api/caffeine-logs', caffeineRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/import', importRoutes);
+
+// Serve client build in production (same domain = no CORS needed)
+const clientDist = join(__dirname, '../client/dist');
+if (existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => res.sendFile(join(clientDist, 'index.html')));
+}
 
 app.use(errorHandler);
 
